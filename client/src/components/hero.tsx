@@ -1,5 +1,3 @@
-import { AuroraTextEffect } from "./aurora-text-effect";
-
 export default function Hero() {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -16,30 +14,10 @@ export default function Hero() {
       
       <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10">
         <div className="section-reveal">
-          <div className="mb-6">
-            <AuroraTextEffect
-              text="ATHARV ANANDA BHOSALE"
-              // Keep on black and ensure visibility
-              textClassName="text-white"
-              // Slightly larger for hero prominence
-              fontSize="clamp(3.5rem, 8vw, 7rem)"
-              // Bright colors that pop on black background
-              colors={{
-                first: "bg-cyan-400",
-                second: "bg-fuchsia-500",
-                third: "bg-blue-500",
-                fourth: "bg-purple-600",
-              }}
-              blurAmount="blur-2xl"
-              animationSpeed={{
-                border: 7,
-                first: 6,
-                second: 5,
-                third: 4,
-                fourth: 12,
-              }}
-            />
-          </div>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <span className="block text-white">ATHARV ANANDA</span>
+            <span className="block bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">BHOSALE</span>
+          </h1>
           
           <p className="text-xl sm:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
             Software Developer | Problem Solver | Tech Enthusiast
