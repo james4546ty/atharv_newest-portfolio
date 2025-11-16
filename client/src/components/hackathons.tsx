@@ -70,12 +70,27 @@ const fallbackHackathons = [
   }
 ];
 
-// Provide Cloudinary links here (order = top to bottom)
+// Cloudinary photos
+// The first URL is used as the large sticky backdrop; the rest are smaller parallax images.
 const hackathonPhotos: string[] = [
-  // 'https://res.cloudinary.com/.../image/upload/v123/photo1.jpg',
-  // 'https://res.cloudinary.com/.../image/upload/v123/photo2.jpg',
-  // 'https://res.cloudinary.com/.../image/upload/v123/photo3.jpg',
-  // 'https://res.cloudinary.com/.../image/upload/v123/photo4.jpg',
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763299220/Futuristic_Landscape_With_Text_uip8ts.png",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1741100450575_oaeo7u.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298931/1741344611400_jsfmgw.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1741344632701_taf58r.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763299384/gdg_jswdf3.jpg",
+  // The user label had 'L-6' appended; using the clean .jpg URL:
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763299441/sc_ihx4th.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298929/1757395508389_lt5fhn.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1755239049276_ev65a0.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1755328318411_kngbli.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1755239048746_pturys.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1755239049134_mcqkru.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763299573/231ad536-f9e8-4f87-98a4-c7d6d846e4d2.png",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298930/1757316236118_nqploo.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298929/1759152915229_lkbspt.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298929/1759152916672_r7y7zq.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298929/1759152917095_w3llh3.jpg",
+  "https://res.cloudinary.com/djofffm1g/image/upload/v1763298929/1759152915256_kndplb.jpg",
 ];
 
 const SECTION_HEIGHT = 1500;
@@ -136,8 +151,7 @@ function CenterBackdrop() {
     [1, 0]
   );
 
-  const bg = hackathonPhotos[0] ||
-    'https://images.unsplash.com/photo-1460186136353-977e9d6085a1?q=80&w=2670&auto=format&fit=crop';
+  const bg = hackathonPhotos[0];
 
   return (
     <motion.div
@@ -155,8 +169,36 @@ function CenterBackdrop() {
 }
 
 function ParallaxPhotos() {
-  // Build a simple stagger layout; if fewer than 4 photos, reuse them
-  const src = (i: number) => hackathonPhotos[i % Math.max(1, hackathonPhotos.length)];
+  // Use all images after the first as the smaller parallax stack
+  const others = hackathonPhotos.slice(1);
+
+  // Cycling layout configs to mimic the demo feel
+  const layoutClass = (i: number) => {
+    switch (i % 4) {
+      case 0:
+        return 'w-1/3';
+      case 1:
+        return 'mx-auto w-2/3';
+      case 2:
+        return 'ml-auto w-1/3';
+      default:
+        return 'ml-24 w-5/12';
+    }
+  };
+
+  const motionConfig = (i: number) => {
+    switch (i % 4) {
+      case 0:
+        return { start: -200, end: 200 };
+      case 1:
+        return { start: 200, end: -250 };
+      case 2:
+        return { start: -200, end: 200 };
+      default:
+        return { start: 0, end: -500 };
+    }
+  };
+
   return (
     <div
       style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
@@ -164,38 +206,19 @@ function ParallaxPhotos() {
     >
       <CenterBackdrop />
       <div className="mx-auto max-w-5xl px-4 pt-[200px]">
-        {hackathonPhotos.length > 0 ? (
-          <>
+        {others.map((src, i) => {
+          const { start, end } = motionConfig(i);
+          return (
             <ParallaxImg
-              src={src(0)}
-              alt="Hackathon moment 1"
-              start={-200}
-              end={200}
-              className="w-1/3"
+              key={i}
+              src={src}
+              alt={`Hackathon moment ${i + 2}`}
+              start={start}
+              end={end}
+              className={layoutClass(i)}
             />
-            <ParallaxImg
-              src={src(1)}
-              alt="Hackathon moment 2"
-              start={200}
-              end={-250}
-              className="mx-auto w-2/3"
-            />
-            <ParallaxImg
-              src={src(2)}
-              alt="Hackathon moment 3"
-              start={-200}
-              end={200}
-              className="ml-auto w-1/3"
-            />
-            <ParallaxImg
-              src={src(3)}
-              alt="Hackathon moment 4"
-              start={0}
-              end={-500}
-              className="ml-24 w-5/12"
-            />
-          </>
-        ) : null}
+          );
+        })}
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
     </div>
