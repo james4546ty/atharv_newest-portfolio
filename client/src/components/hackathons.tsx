@@ -68,6 +68,11 @@ const fallbackHackathons = [
   }
 ];
 
+// Gallery placeholder - replace with your Cloudinary links
+const galleryImages: string[] = [
+  // Example placeholders; will render nothing if empty
+];
+
 export default function Hackathons() {
   const { data: hackathonsData } = useQuery<any[]>({
     queryKey: ['/api/hackathons'],
@@ -82,19 +87,37 @@ export default function Hackathons() {
     <section id="hackathons" className="py-20 lg:py-32 bg-gray-900 bg-opacity-50 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <div className="section-reveal">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white">Hackathon Participation</h2>
             <div className="w-24 h-1 bg-blue-500 mx-auto mb-4"></div>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
               Collaborative problem-solving and innovation through competitive programming events
             </p>
           </div>
+
+          {/* Photo gallery */}
+          {galleryImages.length > 0 && (
+            <div className="mb-16">
+              <h3 className="text-center text-2xl font-semibold text-white mb-6">Gallery</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {galleryImages.map((src, idx) => (
+                  <div key={idx} className="group overflow-hidden rounded-xl border border-gray-800 bg-gray-800/40">
+                    <img
+                      src={src}
+                      alt={`Hackathon ${idx + 1}`}
+                      className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
+          {/* Timeline */}
           <div className="relative max-w-4xl mx-auto">
-            {/* Timeline line */}
             <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-blue-500 z-0"></div>
 
-            {/* Timeline cards */}
             <div className="space-y-24">
               {hackathons.map((hackathon) => (
                 <div
@@ -109,8 +132,6 @@ export default function Hackathons() {
                       <h3 className="text-xl font-bold mb-2 text-white">{hackathon.name}</h3>
                       <p className="text-gray-300 mb-2 font-medium">{hackathon.role}</p>
                       <p className="text-gray-400 text-sm mb-3">{hackathon.organizer}</p>
-
-                      {/* Certificate link */}
                       {hackathon.certificateUrl && (
                         <a
                           href={hackathon.certificateUrl}
