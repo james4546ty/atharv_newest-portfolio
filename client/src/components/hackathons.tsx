@@ -155,7 +155,7 @@ function CenterBackdrop() {
 
   return (
     <motion.div
-      className="sticky top-0 h-screen w-full"
+      className="sticky top-0 h-screen w-full z-0"
       style={{
         clipPath,
         backgroundSize,
@@ -172,7 +172,11 @@ function ParallaxPhotos() {
   // Use all images after the first as the smaller parallax stack
   const others = hackathonPhotos.slice(1);
 
-  // Cycling layout configs to mimic the demo feel
+  // Determine container height based on number of images to keep the scroll within this section
+  const rows = Math.max(1, Math.ceil(others.length / 4));
+  const dynamicHeight = 600 * rows; // tune per need
+
+  // Cycling layout configs to mimic the demo feel and keep images small
   const layoutClass = (i: number) => {
     switch (i % 4) {
       case 0:
@@ -201,11 +205,11 @@ function ParallaxPhotos() {
 
   return (
     <div
-      style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
+      style={{ height: `calc(${dynamicHeight}px + 100vh)` }}
       className="relative w-full"
     >
       <CenterBackdrop />
-      <div className="mx-auto max-w-5xl px-4 pt-[200px]">
+      <div className="mx-auto max-w-5xl px-4 pt-[200px] relative z-10">
         {others.map((src, i) => {
           const { start, end } = motionConfig(i);
           return (
