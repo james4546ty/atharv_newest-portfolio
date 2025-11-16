@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getQueryFn } from '@/lib/queryClient';
+import { motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 // Fallback hackathons
 const fallbackHackathons = [
@@ -68,10 +70,137 @@ const fallbackHackathons = [
   }
 ];
 
-// Gallery placeholder - replace with your Cloudinary links
-const galleryImages: string[] = [
-  // Example placeholders; will render nothing if empty
+// Provide Cloudinary links here (order = top to bottom)
+const hackathonPhotos: string[] = [
+  // 'https://res.cloudinary.com/.../image/upload/v123/photo1.jpg',
+  // 'https://res.cloudinary.com/.../image/upload/v123/photo2.jpg',
+  // 'https://res.cloudinary.com/.../image/upload/v123/photo3.jpg',
+  // 'https://res.cloudinary.com/.../image/upload/v123/photo4.jpg',
 ];
+
+const SECTION_HEIGHT = 1500;
+
+function ParallaxImg({
+  className,
+  alt,
+  src,
+  start,
+  end,
+}: {
+  className?: string;
+  alt: string;
+  src: string;
+  start: number;
+  end: number;
+}) {
+  const ref = useRef<HTMLImageElement | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: [`${start}px end`, `end ${end * -1}px`],
+  });
+
+  const opacity = useTransform(scrollYProgress, [0.75, 1], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0.75, 1], [1, 0.9]);
+
+  const y = useTransform(scrollYProgress, [0, 1], [start, end]);
+  const transform = useMotionTemplate`translateY(${y}px) scale(${scale})`;
+
+  return (
+    <motion.img
+      src={src}
+      alt={alt}
+      className={className}
+      ref={ref}
+      style={{ transform, opacity }}
+      loading="lazy"
+    />
+  );
+}
+
+function CenterBackdrop() {
+  const { scrollY } = useScroll();
+
+  const clip1 = useTransform(scrollY, [0, 1500], [25, 0]);
+  const clip2 = useTransform(scrollY, [0, 1500], [75, 100]);
+  const clipPath = useMotionTemplate`polygon(${clip1}% ${clip1}%, ${clip2}% ${clip1}%, ${clip2}% ${clip2}%, ${clip1}% ${clip2}%)`;
+
+  const backgroundSize = useTransform(
+    scrollY,
+    [0, SECTION_HEIGHT + 500],
+    ['170%', '100%']
+  );
+  const opacity = useTransform(
+    scrollY,
+    [SECTION_HEIGHT, SECTION_HEIGHT + 500],
+    [1, 0]
+  );
+
+  const bg = hackathonPhotos[0] ||
+    'https://images.unsplash.com/photo-1460186136353-977e9d6085a1?q=80&w=2670&auto=format&fit=crop';
+
+  return (
+    <motion.div
+      className="sticky top-0 h-screen w-full"
+      style={{
+        clipPath,
+        backgroundSize,
+        opacity,
+        backgroundImage: `url(${bg})`,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    />
+  );
+}
+
+function ParallaxPhotos() {
+  // Build a simple stagger layout; if fewer than 4 photos, reuse them
+  const src = (i: number) => hackathonPhotos[i % Math.max(1, hackathonPhotos.length)];
+  return (
+    <div
+      style={{ height: `calc(${SECTION_HEIGHT}px + 100vh)` }}
+      className="relative w-full"
+    >
+      <CenterBackdrop />
+      <div className="mx-auto max-w-5xl px-4 pt-[200px]">
+        {hackathonPhotos.length > 0 ? (
+          <>
+            <ParallaxImg
+              src={src(0)}
+              alt="Hackathon moment 1"
+              start={-200}
+              end={200}
+              className="w-1/3"
+            />
+            <ParallaxImg
+              src={src(1)}
+              alt="Hackathon moment 2"
+              start={200}
+              end={-250}
+              className="mx-auto w-2/3"
+            />
+            <ParallaxImg
+              src={src(2)}
+              alt="Hackathon moment 3"
+              start={-200}
+              end={200}
+              className="ml-auto w-1/3"
+            />
+            <ParallaxImg
+              src={src(3)}
+              alt="Hackathon moment 4"
+              start={0}
+              end={-500}
+              className="ml-24 w-5/12"
+            />
+          </>
+        ) : null}
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-b from-zinc-950/0 to-zinc-950" />
+    </div>
+  );
+}
 
 export default function Hackathons() {
   const { data: hackathonsData } = useQuery<any[]>({
@@ -95,27 +224,11 @@ export default function Hackathons() {
             </p>
           </div>
 
-          {/* Photo gallery */}
-          {galleryImages.length > 0 && (
-            <div className="mb-16">
-              <h3 className="text-center text-2xl font-semibold text-white mb-6">Gallery</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {galleryImages.map((src, idx) => (
-                  <div key={idx} className="group overflow-hidden rounded-xl border border-gray-800 bg-gray-800/40">
-                    <img
-                      src={src}
-                      alt={`Hackathon ${idx + 1}`}
-                      className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-          
+          {/* Scroll photo animation */}
+          <ParallaxPhotos />
+
           {/* Timeline */}
-          <div className="relative max-w-4xl mx-auto">
+          <div className="relative max-w-4xl mx-auto mt-16">
             <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-blue-500 z-0"></div>
 
             <div className="space-y-24">
