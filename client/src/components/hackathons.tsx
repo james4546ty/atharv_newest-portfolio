@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getQueryFn } from '@/lib/queryClient';
 import { motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 // Fallback hackathons
 const fallbackHackathons = [
@@ -154,17 +155,69 @@ function CenterBackdrop() {
   const bg = hackathonPhotos[0];
 
   return (
-    <motion.div
-      className="sticky top-0 h-screen w-full z-0"
-      style={{
-        clipPath,
-        backgroundSize,
-        opacity,
-        backgroundImage: `url(${bg})`,
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    />
+    <div className="sticky top-0 h-screen w-full z-0 flex items-center justify-center">
+      <AspectRatio ratio={16 / 9} className="w-full max-w-6xl">
+        <motion.div
+          className="w-full h-full rounded-xl overflow-hidden"
+          style={{
+            clipPath,
+            backgroundSize,
+            opacity,
+            backgroundImage: `url(${bg})`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+      </AspectRatio>
+    </div>
+  );
+}
+
+function TechBackground() {
+  // Subtle moving gradients, grid and light streaks without extra CSS
+  return (
+    <div className="pointer-events-none absolute inset-0 z-[1]">
+      {/* Neon gradient wash */}
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(60% 60% at 50% 50%, rgba(99,102,241,0.12) 0%, rgba(14,165,233,0.08) 40%, rgba(10,10,10,0.9) 100%)',
+        }}
+        initial={{ opacity: 0.6 }}
+        animate={{ opacity: 0.9 }}
+        transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatType: 'reverse' }}
+      />
+      {/* Grid */}
+      <div
+        className="absolute inset-0 mix-blend-screen"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          backgroundSize: '40px 40px, 40px 40px',
+          backgroundPosition: 'center',
+        }}
+      />
+      {/* Light streak */}
+      <motion.div
+        className="absolute top-1/4 h-1 w-1/2 left-[-20%] rounded-full blur-md"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(56,189,248,0.4), transparent)',
+        }}
+        initial={{ x: '-20%' }}
+        animate={{ x: '120%' }}
+        transition={{ duration: 6, ease: 'easeInOut', repeat: Infinity }}
+      />
+      <motion.div
+        className="absolute bottom-1/3 h-[2px] w-1/3 right-[-10%] rounded-full blur-sm"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent)',
+        }}
+        initial={{ x: '0%' }}
+        animate={{ x: '-120%' }}
+        transition={{ duration: 7.5, ease: 'easeInOut', repeat: Infinity }}
+      />
+    </div>
   );
 }
 
@@ -174,7 +227,7 @@ function ParallaxPhotos() {
 
   // Determine container height based on number of images to keep the scroll within this section
   const rows = Math.max(1, Math.ceil(others.length / 4));
-  const dynamicHeight = 600 * rows; // tune per need
+  const dynamicHeight = 650 * rows; // tuned to keep scroll within this section
 
   // Cycling layout configs to mimic the demo feel and keep images small
   const layoutClass = (i: number) => {
@@ -206,10 +259,11 @@ function ParallaxPhotos() {
   return (
     <div
       style={{ height: `calc(${dynamicHeight}px + 100vh)` }}
-      className="relative w-full"
+      className="relative w-full bg-[#0a0a0a]"
     >
       <CenterBackdrop />
-      <div className="mx-auto max-w-5xl px-4 pt-[200px] relative z-10">
+      <TechBackground />
+      <div className="mx-auto max-w-6xl px-4 pt-[200px] relative z-10">
         {others.map((src, i) => {
           const { start, end } = motionConfig(i);
           return (
@@ -240,23 +294,66 @@ export default function Hackathons() {
     : fallbackHackathons;         
 
   return (
-    <section id="hackathons" className="py-20 lg:py-32 bg-gray-900 bg-opacity-50 scroll-mt-20">
+    <section id="hackathons" className="py-20 lg:py-32 bg-[#0a0a0a] scroll-mt-20">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <div className="section-reveal">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white">Hackathon Participation</h2>
-            <div className="w-24 h-1 bg-blue-500 mx-auto mb-4"></div>
+          {/* Header */}
+          <motion.div
+            initial={{ y: 32, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-4xl sm:text-5xl font-extrabold mb-6 text-white tracking-tight">
+              Hackathon Participation
+            </h2>
+            <div className="w-24 h-1 bg-cyan-500 mx-auto mb-4"></div>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Collaborative problem-solving and innovation through competitive programming events
+              Futuristic, minimal showcase of competitive tech building and collaboration
             </p>
-          </div>
+          </motion.div>
 
-          {/* Scroll photo animation */}
+          {/* Parallax Tech Elements + Center Highlight */}
           <ParallaxPhotos />
+
+          {/* Information Blocks */}
+          <div className="mt-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {(hackathons || []).slice(0, 4).map((h, idx) => (
+                <motion.div
+                  key={h.id ?? idx}
+                  initial={{ y: 24, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.7, ease: 'easeInOut' }}
+                  className="rounded-2xl border border-gray-800 bg-zinc-900/60 p-6 shadow-xl"
+                >
+                  <p className="text-sm uppercase text-zinc-500">Hackathon</p>
+                  <h3 className="text-xl font-bold text-white">{h.name}</h3>
+                  {h.projectTitle && (
+                    <p className="mt-1 text-cyan-400 font-medium">{h.projectTitle}</p>
+                  )}
+                  <p className="mt-2 text-gray-300">{h.role}</p>
+                  <p className="text-sm text-gray-500">{h.organizer}</p>
+                  {h.certificateUrl && (
+                    <a
+                      href={h.certificateUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block text-cyan-400 hover:text-cyan-300 text-sm font-medium underline"
+                    >
+                      View Certificate →
+                    </a>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
 
           {/* Timeline */}
           <div className="relative max-w-4xl mx-auto mt-16">
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-blue-500 z-0"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-cyan-500 z-0"></div>
 
             <div className="space-y-24">
               {hackathons.map((hackathon) => (
@@ -277,7 +374,7 @@ export default function Hackathons() {
                           href={hackathon.certificateUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-block mt-2 text-blue-400 hover:text-blue-300 text-sm font-medium underline transition duration-200"
+                          className="inline-block mt-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium underline transition duration-200"
                         >
                           View Certificate →
                         </a>
